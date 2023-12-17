@@ -5,3 +5,7 @@ VALUES ('aac05adf-6a65-4206-87fa-d95b3d97e8a1', 0, 'Otto', 'Rohenkohl',
         '38f3f532579ded3edec2de8a2ee6d4b3392e1f5b0b2d39a47021f07059984f93', 'tim.bense'),
        ('719b0199-e314-42c5-bf35-0438ab85d481', 0, 'Anton', 'Freese',
         'a370809d9e8ea7b90efb91f56eb57cf303086134f661e06d4932d498a228255f', 'anton.freese');
+
+INSERT INTO service(uuid, tag, description, title)
+VALUES ('222d033e-7687-464c-972f-fa95b6b65ea2', 0, 'Some unspecified service', 'Hello'),
+       ('d93a2148-ee36-43c8-b447-58556663fb90', 0, 'Some different service', 'There');
