@@ -1,0 +1,13 @@
+name: authyreapi
+
+services:
+
+  authyreapi-service-postgresql:
+    container_name: postgres
+    image:          postgres
+    environment:
+      POSTGRES_DB:       authyreapi
+      POSTGRES_PASSWORD: authyreapi
+      POSTGRES_USER:     authyreapi
+    ports:
+      - "5432:5432"
