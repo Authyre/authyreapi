@@ -2,10 +2,12 @@ package de.ottorohenkohl.domain.transfer.object.service;
 
 import de.ottorohenkohl.domain.model.entity.Service;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@Value
+@Getter
+@NoArgsConstructor
 public class ReadService {
     
     String description;

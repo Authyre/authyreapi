@@ -1,10 +1,12 @@
 package de.ottorohenkohl.domain.transfer.object.service;
 
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@Value
+@Getter
+@NoArgsConstructor
 public class CreateService {
     
     String description;

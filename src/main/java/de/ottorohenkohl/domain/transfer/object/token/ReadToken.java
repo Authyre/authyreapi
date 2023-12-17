@@ -5,12 +5,14 @@ import de.ottorohenkohl.domain.transfer.object.permission.ReadPermission;
 import de.ottorohenkohl.domain.transfer.object.person.ReadPerson;
 import de.ottorohenkohl.domain.transfer.object.service.ReadService;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @AllArgsConstructor
-@Value
+@Getter
+@NoArgsConstructor
 public class ReadToken {
     
     List<ReadPermission> permissions;
