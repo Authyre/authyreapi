@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class PersonJPARepositoryTest extends PersistableJPARepositoryTest<Person> {
     
-    public static final Identifier permittedIdentifier = Identifier.build("aac05adf-6a65-4206-87fa-d95b3d97e8a1").get();
-    
     public static final Identifier notStoredIdentifier = Identifier.build("b664fad0-bdcb-40d9-952f-b53989f86331").get();
+    
+    public static final Identifier permittedIdentifier = Identifier.build("aac05adf-6a65-4206-87fa-d95b3d97e8a1").get();
     
     public static final Positive amount = Positive.build(3).get();
     
@@ -39,14 +39,14 @@ public class PersonJPARepositoryTest extends PersistableJPARepositoryTest<Person
     }
     
     @Test
-    protected void returnNoneByUsernameOnFetchCaseMissingInDatabase() {
+    protected void returnNoneOnFetchByUsernameCaseMissingInDatabase() {
         var person = repository.read(notStoredUsername);
         
         assertFalse(person.isDefined());
     }
     
     @Test
-    protected void returnPersonByUsernameOnFetchCaseExistingInDatabase() {
+    protected void returnPersonOnFetchByUsernameCaseExistingInDatabase() {
         var person = repository.read(permittedUsername);
         
         assertAll(() -> assertTrue(person.isDefined()),
