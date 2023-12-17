@@ -8,6 +8,7 @@ public enum Trace {
     NAME,
     PASSWORD,
     POSITIVE,
+    TITLE,
     UNSPECIFIED,
     USER,
     USERNAME

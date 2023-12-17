@@ -15,7 +15,7 @@ public class ReadService {
     String title;
     
     public ReadService(Service service) {
-        this.description = service.getDescription().getValue();
+        this.description = service.getDescription() != null ? service.getDescription().getValue() : null;
         this.title = service.getTitle().getValue();
         this.identifier = service.getIdentifier().getUuid();
     }
