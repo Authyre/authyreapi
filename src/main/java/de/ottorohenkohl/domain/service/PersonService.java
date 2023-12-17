@@ -70,7 +70,6 @@ public class PersonService {
                        .fold(Empty::new, t -> new Empty());
     }
     
-    @Transactional
     private Empty update(Person person, UpdatePerson updatePerson) {
         return Validation.combine(Primitive.update(Name::build, person::getForename, updatePerson.getForename()),
                                   Primitive.update(Name::build, person::getLastname, updatePerson.getLastname()),
@@ -88,6 +87,7 @@ public class PersonService {
                          .fold(Empty::new, u -> u);
     }
     
+    @Transactional
     public Empty update(String username, UpdatePerson updatePerson) {
         return Username.build(username)
                        .map(personRepository::read)

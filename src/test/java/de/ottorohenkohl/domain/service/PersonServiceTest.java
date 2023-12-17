@@ -1,4 +1,4 @@
-package de.ottorohenkohl.service;
+package de.ottorohenkohl.domain.service;
 
 import de.ottorohenkohl.domain.model.entity.Person;
 import de.ottorohenkohl.domain.model.entity.PersonTest;
@@ -6,7 +6,6 @@ import de.ottorohenkohl.domain.model.enumeration.Status;
 import de.ottorohenkohl.domain.model.enumeration.Trace;
 import de.ottorohenkohl.domain.model.value.primitive.*;
 import de.ottorohenkohl.domain.repository.PersonRepository;
-import de.ottorohenkohl.domain.service.PersonService;
 import de.ottorohenkohl.domain.transfer.object.person.CreatePerson;
 import de.ottorohenkohl.domain.transfer.object.person.UpdatePerson;
 import io.quarkus.test.junit.QuarkusTest;
@@ -36,7 +35,7 @@ public class PersonServiceTest {
     @Test
     protected void createPersonCaseNotExisting() {
         when(repository.read(any(Username.class))).thenReturn(Option.none());
-        when(repository.delete(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(repository.create(any(Person.class))).thenReturn(Option.of(PersonTest.person));
         
         var createPerson = new CreatePerson(null, null, PasswordTest.notStoredValue, UsernameTest.notStoredValue);
         var response = service.create(createPerson);
@@ -51,25 +50,10 @@ public class PersonServiceTest {
         when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
         when(repository.delete(any(Person.class))).thenReturn(Option.of(PersonTest.person));
         
-        var readPerson = service.delete(UsernameTest.permittedValue);
+        var response = service.delete(UsernameTest.permittedValue);
         
         assertAll(() -> verify(repository).read(any(Username.class)),
-                  () -> verify(repository).delete(any(Person.class)),
-                  () -> assertFalse(readPerson.hasError()));
-    }
-    
-    @Test
-    protected void returnErrorOnDeleteByUsernameCaseMissing() {
-        when(repository.read(any(Username.class))).thenReturn(Option.none());
-        when(repository.delete(any(Person.class))).thenReturn(Option.of(PersonTest.person));
-        
-        var readPerson = service.delete(UsernameTest.permittedValue);
-        
-        assertAll(() -> verify(repository).read(any(Username.class)),
-                  () -> verifyNoMoreInteractions(repository),
-                  () -> assertTrue(readPerson.hasError()),
-                  () -> assertEquals(Status.MISSING, readPerson.getError().getStatus()),
-                  () -> assertEquals(Trace.DATABASE, readPerson.getError().getTrace()));
+                  () -> verify(repository).delete(any(Person.class)), () -> assertFalse(response.hasError()));
     }
     
     @Test
@@ -85,6 +69,20 @@ public class PersonServiceTest {
                   () -> assertTrue(response.hasError()),
                   () -> assertEquals(Status.DUPLICATE, response.getError().getStatus()),
                   () -> assertEquals(Trace.USERNAME, response.getError().getTrace()));
+    }
+    
+    @Test
+    protected void returnErrorOnDeleteByUsernameCaseMissing() {
+        when(repository.read(any(Username.class))).thenReturn(Option.none());
+        when(repository.delete(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        
+        var response = service.delete(UsernameTest.permittedValue);
+        
+        assertAll(() -> verify(repository).read(any(Username.class)),
+                  () -> verifyNoMoreInteractions(repository),
+                  () -> assertTrue(response.hasError()),
+                  () -> assertEquals(Status.MISSING, response.getError().getStatus()),
+                  () -> assertEquals(Trace.DATABASE, response.getError().getTrace()));
     }
     
     @Test
@@ -162,9 +160,9 @@ public class PersonServiceTest {
         
         assertAll(() -> assertFalse(response.hasError()),
                   () -> verify(repository).update(args.capture()),
-                  () -> assertEquals(args.getValue().getForename().getValue(), NameTest.notStoredValue),
-                  () -> assertEquals(args.getValue().getLastname(), PersonTest.person.getLastname()),
-                  () -> assertEquals(args.getValue().getPassword(), PersonTest.person.getPassword()));
+                  () -> assertEquals(NameTest.notStoredValue, args.getValue().getForename().getValue()),
+                  () -> assertEquals(PersonTest.person.getLastname(), args.getValue().getLastname()),
+                  () -> assertEquals(PersonTest.person.getPassword(), args.getValue().getPassword()));
     }
     
     @Test
@@ -178,9 +176,9 @@ public class PersonServiceTest {
         
         assertAll(() -> assertFalse(response.hasError()),
                   () -> verify(repository).update(args.capture()),
-                  () -> assertEquals(args.getValue().getLastname().getValue(), NameTest.notStoredValue),
-                  () -> assertEquals(args.getValue().getForename(), PersonTest.person.getForename()),
-                  () -> assertEquals(args.getValue().getPassword(), PersonTest.person.getPassword()));
+                  () -> assertEquals(NameTest.notStoredValue, args.getValue().getLastname().getValue()),
+                  () -> assertEquals(PersonTest.person.getForename(), args.getValue().getForename()),
+                  () -> assertEquals(PersonTest.person.getPassword(), args.getValue().getPassword()));
     }
     
     @Test
@@ -194,9 +192,9 @@ public class PersonServiceTest {
         
         assertAll(() -> assertFalse(response.hasError()),
                   () -> verify(repository).update(args.capture()),
-                  () -> assertEquals(args.getValue().getForename(), PersonTest.person.getForename()),
-                  () -> assertEquals(args.getValue().getLastname(), PersonTest.person.getLastname()),
-                  () -> assertEquals(args.getValue().getPassword(), Password.build(PasswordTest.notStoredValue).get()));
+                  () -> assertEquals(PersonTest.person.getForename(), args.getValue().getForename()),
+                  () -> assertEquals(PersonTest.person.getLastname(), args.getValue().getLastname()),
+                  () -> assertEquals(Password.build(PasswordTest.notStoredValue).get(), args.getValue().getPassword()));
     }
     
 }
