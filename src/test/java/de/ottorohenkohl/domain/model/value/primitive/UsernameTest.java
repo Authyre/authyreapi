@@ -9,14 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class UsernameTest extends PrimitiveTest<Username, String> {
     
-    public static final String forbiddenValue = "not/|lowed";
-    
-    public static final String notStoredValue = "dora.mosonyi";
-    
-    public static final String permittedValue = "otto.rohenkohl";
-    
-    protected UsernameTest() {
-        super(Username::build, Username::new, forbiddenValue, notStoredValue, permittedValue);
+    public UsernameTest() {
+        super(Username::build, Username::new, "dora.mosonyi", "not/|lowed", "otto.rohenkohl");
     }
     
     @Test

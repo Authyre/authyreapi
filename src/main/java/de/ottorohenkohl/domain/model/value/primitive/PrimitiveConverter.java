@@ -1,14 +1,15 @@
 package de.ottorohenkohl.domain.model.value.primitive;
 
-import io.vavr.control.Option;
 import jakarta.persistence.AttributeConverter;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 
 import java.util.function.Function;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
 public abstract class PrimitiveConverter<T extends Primitive<U>, U> implements AttributeConverter<T, U> {
     
+    @NonNull
     private final Function<U, T> function;
     
     @Override

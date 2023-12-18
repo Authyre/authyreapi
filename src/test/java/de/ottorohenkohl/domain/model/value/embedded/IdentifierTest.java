@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class IdentifierTest {
     
-    public static final String forbiddenValue = "016811a5-e0d0-472d-9f6d-3d223f1a0f3g";
+    public static final String brokenValue = "016811a5-e0d0-472d-9f6d-3d223f1a0f3g";
     
-    public static final String permittedValue = "0cef9a1e-a391-43c1-952c-69ef3ed0ad8d";
+    public static final String storedValue = "aac05adf-6a65-4206-87fa-d95b3d97e8a1";
     
     @Test
     protected void returnIdentifierWithRandomizedValue() {
@@ -25,15 +25,14 @@ public class IdentifierTest {
     
     @Test
     protected void returnIdentifierCaseValidInput() {
-        var identifier = Identifier.build(permittedValue);
+        var identifier = Identifier.build(storedValue);
         
-        assertAll(() -> assertTrue(identifier.isValid()),
-                  () -> assertEquals(permittedValue, identifier.get().getUuid()));
+        assertAll(() -> assertTrue(identifier.isValid()), () -> assertEquals(storedValue, identifier.get().getUuid()));
     }
     
     @Test
     protected void returnErrorCaseInvalidInput() {
-        var identifier = Identifier.build(forbiddenValue);
+        var identifier = Identifier.build(brokenValue);
         
         assertAll(() -> assertTrue(identifier.isInvalid()),
                   () -> assertEquals(Status.FORMATTING, identifier.getError().getStatus()));

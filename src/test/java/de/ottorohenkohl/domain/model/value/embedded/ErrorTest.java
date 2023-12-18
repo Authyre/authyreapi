@@ -5,7 +5,8 @@ import de.ottorohenkohl.domain.model.enumeration.Trace;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 public class ErrorTest {

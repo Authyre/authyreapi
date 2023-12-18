@@ -22,50 +22,62 @@ import static org.mockito.Mockito.*;
 @QuarkusTest
 public class PersonServiceTest {
     
-    private PersonService service;
+    private static final Name forename = new NameTest().getAbsentInstance();
     
-    private PersonRepository repository;
+    private static final Name lastname = new NameTest().getAbsentInstance();
+    
+    private static final Person person = new PersonTest().getAbsentInstance();
+    
+    private static final String password = new PasswordTest().getStoredOriginal();
+    
+    private static final Username username = new UsernameTest().getAbsentInstance();
+    
+    
+    private PersonService personService;
+    
+    private PersonRepository personRepository;
     
     @BeforeEach
     public void before() {
-        this.repository = mock(PersonRepository.class);
-        this.service = new PersonService(repository);
+        this.personRepository = mock(PersonRepository.class);
+        this.personService = new PersonService(personRepository);
     }
     
     @Test
     protected void createPersonCaseNotExisting() {
-        when(repository.read(any(Username.class))).thenReturn(Option.none());
-        when(repository.create(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.none());
+        when(personRepository.create(any(Person.class))).thenReturn(Option.of(person));
         
-        var createPerson = new CreatePerson(null, null, PasswordTest.notStoredValue, UsernameTest.notStoredValue);
-        var response = service.create(createPerson);
+        var createPerson = new CreatePerson(null, null, password, username.getValue());
+        var response = personService.create(createPerson);
         
-        assertAll(() -> verify(repository).read(any(Username.class)),
-                  () -> verify(repository).create(any(Person.class)),
+        assertAll(() -> verify(personRepository).read(any(Username.class)),
+                  () -> verify(personRepository).create(any(Person.class)),
                   () -> assertFalse(response.hasError()));
     }
     
     @Test
     protected void deletePersonByUsernameCaseExisting() {
-        when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
-        when(repository.delete(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.of(person));
+        when(personRepository.delete(any(Person.class))).thenReturn(Option.of(person));
         
-        var response = service.delete(UsernameTest.permittedValue);
+        var response = personService.delete(username.getValue());
         
-        assertAll(() -> verify(repository).read(any(Username.class)),
-                  () -> verify(repository).delete(any(Person.class)), () -> assertFalse(response.hasError()));
+        assertAll(() -> verify(personRepository).read(any(Username.class)),
+                  () -> verify(personRepository).delete(any(Person.class)),
+                  () -> assertFalse(response.hasError()));
     }
     
     @Test
     protected void returnErrorOnCreateCaseUsernameExisting() {
-        when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
-        when(repository.create(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.of(person));
+        when(personRepository.create(any(Person.class))).thenReturn(Option.of(person));
         
-        var createPerson = new CreatePerson(null, null, PasswordTest.permittedValue, UsernameTest.permittedValue);
-        var response = service.create(createPerson);
+        var createPerson = new CreatePerson(null, null, password, username.getValue());
+        var response = personService.create(createPerson);
         
-        assertAll(() -> verify(repository).read(any(Username.class)),
-                  () -> verifyNoMoreInteractions(repository),
+        assertAll(() -> verify(personRepository).read(any(Username.class)),
+                  () -> verifyNoMoreInteractions(personRepository),
                   () -> assertTrue(response.hasError()),
                   () -> assertEquals(Status.DUPLICATE, response.getError().getStatus()),
                   () -> assertEquals(Trace.USERNAME, response.getError().getTrace()));
@@ -73,13 +85,13 @@ public class PersonServiceTest {
     
     @Test
     protected void returnErrorOnDeleteByUsernameCaseMissing() {
-        when(repository.read(any(Username.class))).thenReturn(Option.none());
-        when(repository.delete(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.none());
+        when(personRepository.delete(any(Person.class))).thenReturn(Option.of(person));
         
-        var response = service.delete(UsernameTest.permittedValue);
+        var response = personService.delete(username.getValue());
         
-        assertAll(() -> verify(repository).read(any(Username.class)),
-                  () -> verifyNoMoreInteractions(repository),
+        assertAll(() -> verify(personRepository).read(any(Username.class)),
+                  () -> verifyNoMoreInteractions(personRepository),
                   () -> assertTrue(response.hasError()),
                   () -> assertEquals(Status.MISSING, response.getError().getStatus()),
                   () -> assertEquals(Trace.DATABASE, response.getError().getTrace()));
@@ -87,40 +99,40 @@ public class PersonServiceTest {
     
     @Test
     protected void returnErrorOnReadByUsernameCaseMissing() {
-        when(repository.read(any(Username.class))).thenReturn(Option.none());
+        when(personRepository.read(any(Username.class))).thenReturn(Option.none());
         
-        var readPerson = service.read(UsernameTest.permittedValue);
+        var readPerson = personService.read(username.getValue());
         
-        assertAll(() -> verify(repository).read(any(Username.class)),
+        assertAll(() -> verify(personRepository).read(any(Username.class)),
                   () -> assertTrue(readPerson.hasError()),
-                  () -> assertEquals(Status.MISSING, readPerson.getError().status),
-                  () -> assertEquals(Trace.DATABASE, readPerson.getError().trace));
+                  () -> assertEquals(Status.MISSING, readPerson.getError().getStatus()),
+                  () -> assertEquals(Trace.DATABASE, readPerson.getError().getTrace()));
     }
     
     @Test
     protected void returnListOfReadPersonOnReadAll() {
-        when(repository.readAll()).thenReturn(List.of(PersonTest.person));
-        when(repository.readAmount()).thenReturn(1L);
+        when(personRepository.readAll()).thenReturn(List.of(person));
+        when(personRepository.readAmount()).thenReturn(1L);
         
-        var pagination = service.readAll();
+        var pagination = personService.readAll();
         
-        assertAll(() -> verify(repository).readAll(),
+        assertAll(() -> verify(personRepository).readAll(),
                   () -> assertFalse(pagination.hasError()),
                   () -> assertEquals(1, pagination.getItems().size()),
                   () -> assertEquals(1, pagination.getNumberItems()),
                   () -> assertEquals(1, pagination.getNumberTotal()),
-                  () -> assertEquals(PersonTest.person.getIdentifier().getUuid(),
+                  () -> assertEquals(person.getIdentifier().getUuid(),
                                      pagination.getItems().get(0).getIdentifier()));
     }
     
     @Test
     protected void returnListOfReadPersonWithPaginationOnReadAll() {
-        when(repository.readAll()).thenReturn(List.of(PersonTest.person, PersonTest.person));
-        when(repository.readAmount()).thenReturn(1L);
+        when(personRepository.readAll()).thenReturn(List.of(person, person));
+        when(personRepository.readAmount()).thenReturn(1L);
         
-        var pagination = service.readAll(1);
+        var pagination = personService.readAll(1);
         
-        assertAll(() -> verify(repository).readAll(any(Positive.class)),
+        assertAll(() -> verify(personRepository).readAll(any(Positive.class)),
                   () -> assertFalse(pagination.hasError()),
                   () -> assertEquals(0, pagination.getItems().size()),
                   () -> assertEquals(0, pagination.getNumberItems()),
@@ -129,7 +141,7 @@ public class PersonServiceTest {
     
     @Test
     protected void returnErrorOnReadAllWithZeroPagination() {
-        var pagination = service.readAll(0);
+        var pagination = personService.readAll(0);
         
         assertAll(() -> assertTrue(pagination.hasError()),
                   () -> assertEquals(Status.FORMATTING, pagination.getError().getStatus()),
@@ -138,63 +150,63 @@ public class PersonServiceTest {
     
     @Test
     protected void returnReadPersonOnReadByUsernameCaseExisting() {
-        when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.of(person));
         
-        var readPerson = service.read(UsernameTest.permittedValue);
+        var readPerson = personService.read(username.getValue());
         
-        assertAll(() -> verify(repository).read(any(Username.class)),
+        assertAll(() -> verify(personRepository).read(any(Username.class)),
                   () -> assertFalse(readPerson.hasError()),
-                  () -> assertEquals(PersonTest.person.getUsername().getValue(), readPerson.getItem().getUsername()),
-                  () -> assertEquals(PersonTest.person.getIdentifier().getUuid(),
+                  () -> assertEquals(person.getUsername().getValue(), readPerson.getItem().getUsername()),
+                  () -> assertEquals(person.getIdentifier().getUuid(),
                                      readPerson.getItem().getIdentifier()));
     }
     
     @Test
     protected void updateForenameCaseExistingAndDifferent() {
-        when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
-        when(repository.update(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.of(person));
+        when(personRepository.update(any(Person.class))).thenReturn(Option.of(person));
         
         var args = ArgumentCaptor.forClass(Person.class);
-        var updatePerson = new UpdatePerson(NameTest.notStoredValue, null, null);
-        var response = service.update(PersonTest.person.getUsername().getValue(), updatePerson);
+        var updatePerson = new UpdatePerson(forename.getValue(), null, null);
+        var response = personService.update(person.getUsername().getValue(), updatePerson);
         
         assertAll(() -> assertFalse(response.hasError()),
-                  () -> verify(repository).update(args.capture()),
-                  () -> assertEquals(NameTest.notStoredValue, args.getValue().getForename().getValue()),
-                  () -> assertEquals(PersonTest.person.getLastname(), args.getValue().getLastname()),
-                  () -> assertEquals(PersonTest.person.getPassword(), args.getValue().getPassword()));
+                  () -> verify(personRepository).update(args.capture()),
+                  () -> assertEquals(forename, args.getValue().getForename()),
+                  () -> assertEquals(person.getLastname(), args.getValue().getLastname()),
+                  () -> assertEquals(person.getPassword(), args.getValue().getPassword()));
     }
     
     @Test
     protected void updateLastnameCaseExistingAndDifferent() {
-        when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
-        when(repository.update(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.of(person));
+        when(personRepository.update(any(Person.class))).thenReturn(Option.of(person));
         
         var args = ArgumentCaptor.forClass(Person.class);
-        var updatePerson = new UpdatePerson(null, NameTest.notStoredValue, null);
-        var response = service.update(PersonTest.person.getUsername().getValue(), updatePerson);
+        var updatePerson = new UpdatePerson(null, lastname.getValue(), null);
+        var response = personService.update(person.getUsername().getValue(), updatePerson);
         
         assertAll(() -> assertFalse(response.hasError()),
-                  () -> verify(repository).update(args.capture()),
-                  () -> assertEquals(NameTest.notStoredValue, args.getValue().getLastname().getValue()),
-                  () -> assertEquals(PersonTest.person.getForename(), args.getValue().getForename()),
-                  () -> assertEquals(PersonTest.person.getPassword(), args.getValue().getPassword()));
+                  () -> verify(personRepository).update(args.capture()),
+                  () -> assertEquals(lastname, args.getValue().getLastname()),
+                  () -> assertEquals(person.getForename(), args.getValue().getForename()),
+                  () -> assertEquals(person.getPassword(), args.getValue().getPassword()));
     }
     
     @Test
     protected void updatePasswordCaseExistingAndDifferent() {
-        when(repository.read(any(Username.class))).thenReturn(Option.of(PersonTest.person));
-        when(repository.update(any(Person.class))).thenReturn(Option.of(PersonTest.person));
+        when(personRepository.read(any(Username.class))).thenReturn(Option.of(person));
+        when(personRepository.update(any(Person.class))).thenReturn(Option.of(person));
         
         var args = ArgumentCaptor.forClass(Person.class);
-        var updatePerson = new UpdatePerson(null, null, PasswordTest.notStoredValue);
-        var response = service.update(PersonTest.person.getUsername().getValue(), updatePerson);
+        var updatePerson = new UpdatePerson(null, null, password);
+        var response = personService.update(person.getUsername().getValue(), updatePerson);
         
         assertAll(() -> assertFalse(response.hasError()),
-                  () -> verify(repository).update(args.capture()),
-                  () -> assertEquals(PersonTest.person.getForename(), args.getValue().getForename()),
-                  () -> assertEquals(PersonTest.person.getLastname(), args.getValue().getLastname()),
-                  () -> assertEquals(Password.build(PasswordTest.notStoredValue).get(), args.getValue().getPassword()));
+                  () -> verify(personRepository).update(args.capture()),
+                  () -> assertEquals(person.getForename(), args.getValue().getForename()),
+                  () -> assertEquals(person.getLastname(), args.getValue().getLastname()),
+                  () -> assertEquals(new PasswordTest().getStoredInstance(), args.getValue().getPassword()));
     }
     
 }

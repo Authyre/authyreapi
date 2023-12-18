@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class Password extends Primitive<String> {
     
-    private static final Pattern pattern = Pattern.compile("^(?=.*?[A-Z\\d])(?=.*?[a-z])(?=.*?[#?!@$%^&*-]).{5,20}$");
+    private static final Pattern pattern = Pattern.compile("^(?=.*?[A-Z\\d])(?=.*?[a-z])(?=.*?[#?!€@$%^&*-]).{5,20}$");
     
     protected Password(String value) {
         super(value);

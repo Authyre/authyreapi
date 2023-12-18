@@ -7,4 +7,5 @@ import io.vavr.control.Option;
 public interface ServiceRepository extends PersistableRepository<Service> {
     
     Option<Service> read(Name title);
+    
 }

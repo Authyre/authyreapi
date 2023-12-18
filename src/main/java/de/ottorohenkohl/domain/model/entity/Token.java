@@ -6,10 +6,10 @@ import lombok.*;
 
 import java.util.List;
 
+@AllArgsConstructor
 @Entity
 @Getter
 @NoArgsConstructor
-@RequiredArgsConstructor
 @Setter
 public class Token extends Persistable {
     

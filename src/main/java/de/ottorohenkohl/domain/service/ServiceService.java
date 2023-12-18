@@ -4,7 +4,9 @@ import de.ottorohenkohl.domain.model.entity.Service;
 import de.ottorohenkohl.domain.model.enumeration.Status;
 import de.ottorohenkohl.domain.model.enumeration.Trace;
 import de.ottorohenkohl.domain.model.value.embedded.Error;
-import de.ottorohenkohl.domain.model.value.primitive.*;
+import de.ottorohenkohl.domain.model.value.primitive.Name;
+import de.ottorohenkohl.domain.model.value.primitive.Positive;
+import de.ottorohenkohl.domain.model.value.primitive.Primitive;
 import de.ottorohenkohl.domain.repository.ServiceRepository;
 import de.ottorohenkohl.domain.transfer.object.service.CreateService;
 import de.ottorohenkohl.domain.transfer.object.service.ReadService;
@@ -57,18 +59,6 @@ public class ServiceService {
                    .fold(Empty::new, t -> new Empty());
     }
     
-    private Empty update(Service service, UpdateService updateService) {
-        return Primitive.update(Name::build, service::getDescription, updateService.getDescription())
-                        .map((description) -> {
-                            service.setDescription(description);
-                            
-                            serviceRepository.update(service);
-                            
-                            return new Empty();
-                        })
-                        .fold(Empty::new, u -> u);
-    }
-    
     @Transactional
     public Empty update(String title, UpdateService updateService) {
         return Name.build(title)
@@ -100,6 +90,18 @@ public class ServiceService {
                                                                     .stream()
                                                                     .map(ReadService::new)
                                                                     .toList()));
+    }
+    
+    private Empty update(Service service, UpdateService updateService) {
+        return Primitive.update(Name::build, service::getDescription, updateService.getDescription())
+                        .map((description) -> {
+                            service.setDescription(description);
+                            
+                            serviceRepository.update(service);
+                            
+                            return new Empty();
+                        })
+                        .fold(Empty::new, u -> u);
     }
     
 }

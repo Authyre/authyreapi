@@ -8,11 +8,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @QuarkusTest
-public class ServiceTest {
+public class ServiceTest extends PersistableTest<Service> {
     
-    public static final Name title = Name.build(NameTest.permittedValue).get();
+    private static final Name description = new NameTest().getAbsentInstance();
     
-    public static final Service service = new Service(title);
+    private static final Name title = new NameTest().getAbsentInstance();
+    
+    @Override
+    public Service getAbsentInstance() {
+        return new Service(description, title);
+    }
     
     @Test
     public void throwExceptionCaseTitleNullInput() {
