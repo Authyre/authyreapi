@@ -7,8 +7,8 @@ import de.ottorohenkohl.domain.model.value.embedded.Error;
 import de.ottorohenkohl.domain.model.value.primitive.*;
 import de.ottorohenkohl.domain.repository.PersonRepository;
 import de.ottorohenkohl.domain.transfer.object.person.CreatePerson;
-import de.ottorohenkohl.domain.transfer.object.person.UpdatePerson;
 import de.ottorohenkohl.domain.transfer.object.person.ReadPerson;
+import de.ottorohenkohl.domain.transfer.object.person.UpdatePerson;
 import de.ottorohenkohl.domain.transfer.response.Empty;
 import de.ottorohenkohl.domain.transfer.response.Fetched;
 import de.ottorohenkohl.domain.transfer.response.Pagination;
@@ -70,23 +70,6 @@ public class PersonService {
                        .fold(Empty::new, t -> new Empty());
     }
     
-    private Empty update(Person person, UpdatePerson updatePerson) {
-        return Validation.combine(Primitive.update(Name::build, person::getForename, updatePerson.getForename()),
-                                  Primitive.update(Name::build, person::getLastname, updatePerson.getLastname()),
-                                  Primitive.update(Password::build, person::getPassword, updatePerson.getPassword()))
-                         .ap((forename, lastname, password) -> {
-                             person.setForename(forename);
-                             person.setLastname(lastname);
-                             person.setPassword(password);
-                             
-                             personRepository.update(person);
-                             
-                             return new Empty();
-                         })
-                         .mapError(Traversable::head)
-                         .fold(Empty::new, u -> u);
-    }
-    
     @Transactional
     public Empty update(String username, UpdatePerson updatePerson) {
         return Username.build(username)
@@ -115,6 +98,23 @@ public class PersonService {
                        .fold(Pagination::new,
                              t -> new Pagination<>(personRepository.readAmount(),
                                                    personRepository.readAll(t).stream().map(ReadPerson::new).toList()));
+    }
+    
+    private Empty update(Person person, UpdatePerson updatePerson) {
+        return Validation.combine(Primitive.update(Name::build, person::getForename, updatePerson.getForename()),
+                                  Primitive.update(Name::build, person::getLastname, updatePerson.getLastname()),
+                                  Primitive.update(Password::build, person::getPassword, updatePerson.getPassword()))
+                         .ap((forename, lastname, password) -> {
+                             person.setForename(forename);
+                             person.setLastname(lastname);
+                             person.setPassword(password);
+                             
+                             personRepository.update(person);
+                             
+                             return new Empty();
+                         })
+                         .mapError(Traversable::head)
+                         .fold(Empty::new, u -> u);
     }
     
 }

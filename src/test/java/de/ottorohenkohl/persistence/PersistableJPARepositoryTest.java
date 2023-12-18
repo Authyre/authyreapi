@@ -12,40 +12,40 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class PersistableJPARepositoryTest<T extends Persistable> {
     
-    private final Identifier notStoredIdentifier;
+    protected final Identifier absentIdentifier;
     
-    private final Identifier permittedIdentifier;
+    protected final Identifier storedIdentifier;
     
     private final PersistableRepository<T> repository;
     
     private final Positive amount;
     
-    private final T notStoredPersistable;
+    protected final T absentPersistable;
     
-    protected PersistableJPARepositoryTest(Identifier notStoredIdentifier, Identifier permittedIdentifier, PersistableRepository<T> repository, Positive amount, T notStoredPersistable) {
-        this.notStoredIdentifier = notStoredIdentifier;
-        this.permittedIdentifier = permittedIdentifier;
+    protected PersistableJPARepositoryTest(Identifier absentIdentifier, Identifier storedIdentifier, PersistableRepository<T> repository, Positive amount, T absentPersistable) {
+        this.absentIdentifier = absentIdentifier;
+        this.storedIdentifier = storedIdentifier;
         this.repository = repository;
         this.amount = amount;
-        this.notStoredPersistable = notStoredPersistable;
+        this.absentPersistable = absentPersistable;
     }
     
     @Test
     @TestTransaction
     protected void createPersistableCaseNotExistingInDatabase() {
-        repository.create(notStoredPersistable);
+        repository.create(absentPersistable);
         
-        assertTrue(repository.read(notStoredPersistable.getIdentifier()).isDefined());
+        assertTrue(repository.read(absentPersistable.getIdentifier()).isDefined());
     }
     
     @Test
     @TestTransaction
     protected void deleteFromDatabaseCaseExistingInDatabase() {
-        var persistable = repository.read(permittedIdentifier).get();
+        var persistable = repository.read(storedIdentifier).get();
         
         repository.delete(persistable);
         
-        assertFalse(repository.read(permittedIdentifier).isDefined());
+        assertFalse(repository.read(storedIdentifier).isDefined());
     }
     
     @Test
@@ -72,15 +72,15 @@ public abstract class PersistableJPARepositoryTest<T extends Persistable> {
     
     @Test
     protected void returnPersistableOnReadCaseExistingInDatabase() {
-        var persistable = repository.read(permittedIdentifier);
+        var persistable = repository.read(storedIdentifier);
         
         assertAll(() -> assertTrue(persistable.isDefined()),
-                  () -> assertEquals(permittedIdentifier, persistable.get().getIdentifier()));
+                  () -> assertEquals(storedIdentifier, persistable.get().getIdentifier()));
     }
     
     @Test
     protected void returnNoneOnReadCaseMissingInDatabase() {
-        var persistable = repository.read(notStoredIdentifier);
+        var persistable = repository.read(absentIdentifier);
         
         assertFalse(persistable.isDefined());
     }
@@ -88,7 +88,7 @@ public abstract class PersistableJPARepositoryTest<T extends Persistable> {
     @Test
     @TestTransaction
     protected void updatePersistableCaseExistingInDatabase() {
-        var persistable = repository.read(permittedIdentifier).get();
+        var persistable = repository.read(storedIdentifier).get();
         
         assertAll(() -> assertEquals(Tag.STANDARD, persistable.getTag()),
                   () -> persistable.setTag(Tag.TEMPORARY),

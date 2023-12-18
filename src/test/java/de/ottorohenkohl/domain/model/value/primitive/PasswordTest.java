@@ -10,22 +10,20 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class PasswordTest extends PrimitiveTest<Password, String> {
     
-    public static final String forbiddenValue = "AnForbiddenPassword";
+    public PasswordTest() {
+        super(Password::build, Password::new, "0th1rValidPa$$word", "AnForbiddenPassword", "S0m€ValidPa$$word");
+    }
     
-    public static final String notStoredValue = "S0m€ValidPa$$word";
-    
-    public static final String permittedValue = "0th1rValidPa$$word";
-    
-    protected PasswordTest() {
-        super(Password::build, Password::new, forbiddenValue, notStoredValue, permittedValue);
+    public String getStoredOriginal() {
+        return "S0m€ValidPa$$word";
     }
     
     @Override
     protected void returnPrimitiveCaseValidInput() {
-        var password = Password.build(permittedValue);
+        var password = Password.build(super.storedValue);
         
         assertAll(() -> assertTrue(password.isValid()),
-                  () -> assertEquals(DigestUtils.sha256Hex(permittedValue), password.get().getValue()));
+                  () -> assertEquals(DigestUtils.sha256Hex(super.storedValue), password.get().getValue()));
     }
     
     @Test

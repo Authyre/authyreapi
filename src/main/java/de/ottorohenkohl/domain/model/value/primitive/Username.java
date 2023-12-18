@@ -18,19 +18,19 @@ public class Username extends Primitive<String> {
         super(value);
     }
     
-    private static Validation<Error, String> matches(String value) {
-        return Try.of(() -> pattern.matcher(value))
-                  .filter(Matcher::matches)
-                  .toValidation(new Error(Status.FORMATTING, Trace.USERNAME))
-                  .map(t -> value);
-    }
-    
     public static Validation<Error, Username> build(String value) {
         return Option.of(value)
                      .toValidation(new Error(Status.MISSING, Trace.USERNAME))
                      .map(Username::matches)
                      .flatMap(t -> t)
                      .map(Username::new);
+    }
+    
+    private static Validation<Error, String> matches(String value) {
+        return Try.of(() -> pattern.matcher(value))
+                  .filter(Matcher::matches)
+                  .toValidation(new Error(Status.FORMATTING, Trace.USERNAME))
+                  .map(t -> value);
     }
     
 }

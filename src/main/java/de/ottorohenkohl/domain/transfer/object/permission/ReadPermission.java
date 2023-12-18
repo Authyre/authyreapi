@@ -18,11 +18,8 @@ public class ReadPermission {
     
     String identifier;
     
-    String scope;
-    
     public ReadPermission(Permission permission) {
         this.access = permission.getAccess().toString();
-        this.scope = permission.getScope().toString();
         this.identifier = permission.getIdentifier().getUuid();
         
         this.person = new ReadPerson(permission.getPerson());

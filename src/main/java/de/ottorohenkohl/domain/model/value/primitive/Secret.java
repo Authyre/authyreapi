@@ -20,6 +20,13 @@ public class Secret extends Primitive<String> {
         super(value);
     }
     
+    public static Validation<Error, Secret> build(String value) {
+        return Option.of(value)
+                     .toValidation(new Error(Status.MISSING, Trace.PASSWORD))
+                     .map(DigestUtils::sha256Hex)
+                     .map(Secret::new);
+    }
+    
     private static String generate() {
         var generator = new SecureRandom();
         var access = new byte[124];
@@ -27,13 +34,6 @@ public class Secret extends Primitive<String> {
         generator.nextBytes(access);
         
         return Arrays.toString(access);
-    }
-    
-    public static Validation<Error, Secret> build(String value) {
-        return Option.of(value)
-                     .toValidation(new Error(Status.MISSING, Trace.PASSWORD))
-                     .map(DigestUtils::sha256Hex)
-                     .map(Secret::new);
     }
     
 }

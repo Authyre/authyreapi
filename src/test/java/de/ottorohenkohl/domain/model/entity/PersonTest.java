@@ -7,13 +7,20 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @QuarkusTest
-public class PersonTest {
+public class PersonTest extends PersistableTest<Person> {
     
-    public static final Password password = Password.build(PasswordTest.permittedValue).get();
+    private static final Name forename = new NameTest().getAbsentInstance();
     
-    public static final Username username = Username.build(UsernameTest.permittedValue).get();
+    private static final Name lastname = new NameTest().getAbsentInstance();
     
-    public static final Person person = new Person(password, username);
+    private static final Password password = new PasswordTest().getAbsentInstance();
+    
+    private static final Username username = new UsernameTest().getAbsentInstance();
+    
+    @Override
+    public Person getAbsentInstance() {
+        return new Person(forename, lastname, password, username);
+    }
     
     @Test
     protected void throwExceptionCasePasswordNullInput() {

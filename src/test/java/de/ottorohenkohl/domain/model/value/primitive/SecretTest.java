@@ -9,22 +9,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class SecretTest extends PrimitiveTest<Secret, String> {
     
-    public static final String forbiddenValue = null;
-    
-    public static final String notStoredValue = "nbasb89f97qb379ev78F%/DS/$%D§";
-    
-    public static final String permittedValue = "&/ASFDG%)F956865fds6a8%F$(4d8";
-    
-    protected SecretTest() {
-        super(Secret::build, Secret::new, forbiddenValue, notStoredValue, permittedValue);
+    public SecretTest() {
+        super(Secret::build, Secret::new, "nbasb89f97qb379ev78F%/DS/$%D§", null, "&/ASFDG%)F956865fds6a8%F$(4d8");
     }
     
     @Override
     protected void returnPrimitiveCaseValidInput() {
-        var access = Secret.build(permittedValue);
+        var access = Secret.build(super.storedValue);
         
         assertAll(() -> assertTrue(access.isValid()),
-                  () -> assertEquals(DigestUtils.sha256Hex(permittedValue), access.get().getValue()));
+                  () -> assertEquals(DigestUtils.sha256Hex(super.storedValue), access.get().getValue()));
     }
     
     @Override

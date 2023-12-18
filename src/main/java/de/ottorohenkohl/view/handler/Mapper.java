@@ -6,7 +6,7 @@ import jakarta.ws.rs.core.Response;
 public class Mapper {
     
     private static Response error(Answer answer) {
-        var response = switch (answer.getError().status) {
+        var response = switch (answer.getError().getStatus()) {
             case DUPLICATE -> Response.status(Response.Status.CONFLICT);
             case FORMATTING -> Response.status(Response.Status.BAD_REQUEST);
             case INTERNAL -> Response.status(Response.Status.INTERNAL_SERVER_ERROR);

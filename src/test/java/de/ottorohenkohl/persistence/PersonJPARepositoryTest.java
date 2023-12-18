@@ -1,8 +1,11 @@
 package de.ottorohenkohl.persistence;
 
 import de.ottorohenkohl.domain.model.entity.Person;
+import de.ottorohenkohl.domain.model.entity.PersonTest;
 import de.ottorohenkohl.domain.model.value.embedded.Identifier;
-import de.ottorohenkohl.domain.model.value.primitive.*;
+import de.ottorohenkohl.domain.model.value.primitive.Positive;
+import de.ottorohenkohl.domain.model.value.primitive.Username;
+import de.ottorohenkohl.domain.model.value.primitive.UsernameTest;
 import de.ottorohenkohl.domain.repository.PersonRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -13,44 +16,33 @@ import static org.junit.jupiter.api.Assertions.*;
 @QuarkusTest
 public class PersonJPARepositoryTest extends PersistableJPARepositoryTest<Person> {
     
-    public static final Identifier notStoredIdentifier = Identifier.build("b664fad0-bdcb-40d9-952f-b53989f86331").get();
+    public static final Username username = new UsernameTest().getStoredInstance();
     
-    public static final Identifier permittedIdentifier = Identifier.build("aac05adf-6a65-4206-87fa-d95b3d97e8a1").get();
-    
-    public static final Positive amount = Positive.build(3).get();
-    
-    public static final Password permittedPassword = Password.build(PasswordTest.permittedValue).get();
-    
-    public static final Username notStoredUsername = Username.build(UsernameTest.notStoredValue).get();
-    
-    public static final Username permittedUsername = Username.build(UsernameTest.permittedValue).get();
-    
-    private final PersonRepository repository;
+    private final PersonRepository personRepository;
     
     @Inject
-    protected PersonJPARepositoryTest(PersonRepository repository) {
-        super(notStoredIdentifier,
-              permittedIdentifier,
-              repository,
-              amount,
-              new Person(permittedPassword, notStoredUsername));
+    protected PersonJPARepositoryTest(PersonRepository personRepository) {
+        super(Identifier.build("b664fad0-bdcb-40d9-952f-b53989f86331").get(),
+              Identifier.build("aac05adf-6a65-4206-87fa-d95b3d97e8a1").get(), personRepository,
+              Positive.build(3).get(),
+              new PersonTest().getAbsentInstance());
         
-        this.repository = repository;
+        this.personRepository = personRepository;
     }
     
     @Test
     protected void returnNoneOnFetchByUsernameCaseMissingInDatabase() {
-        var person = repository.read(notStoredUsername);
+        var person = personRepository.read(super.absentPersistable.getUsername());
         
         assertFalse(person.isDefined());
     }
     
     @Test
     protected void returnPersonOnFetchByUsernameCaseExistingInDatabase() {
-        var person = repository.read(permittedUsername);
+        var person = personRepository.read(username);
         
         assertAll(() -> assertTrue(person.isDefined()),
-                  () -> assertEquals(permittedUsername, person.get().getUsername()));
+                  () -> assertEquals(username, person.get().getUsername()));
     }
     
 }
